@@ -74,6 +74,8 @@ type RouterDescriptor struct {
 	NTorOnionKey string
 	SigningKey   string
 
+	RawExitPolicy string
+
 	RawAccept string
 	RawReject string
 	Accept    []*ExitPattern
@@ -297,10 +299,10 @@ func ParseRawDescriptor(rawDescriptor string) (Fingerprint, GetDescriptor, error
 			descriptor.HiddenServiceDir = true
 
 		case "reject":
-			descriptor.RawReject += words[1] + " "
+			descriptor.RawExitPolicy += words[0] + " " + words[1] + "\n"
 
 		case "accept":
-			descriptor.RawAccept += words[1] + " "
+			descriptor.RawExitPolicy += words[0] + " " + words[1] + "\n"
 		}
 	}
 
