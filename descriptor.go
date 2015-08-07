@@ -33,11 +33,8 @@ type ExitPattern struct {
 type RouterDescriptor struct {
 
 	// The single fields of a "router" line.
-	Nickname  string
-	Address   net.IP
-	ORPort    uint16
-	SOCKSPort uint16
-	DirPort   uint16
+	Nickname string
+	Address  net.IP
 
 	// The single fields of a "bandwidth" line.  All bandwidth values are in
 	// bytes per second.
@@ -52,9 +49,6 @@ type RouterDescriptor struct {
 	// The single fields of a "published" line.
 	Published time.Time
 
-	// The single fields of an "uptime" line.
-	Uptime uint64
-
 	// The single fields of a "fingerprint" line.
 	Fingerprint Fingerprint
 
@@ -64,22 +58,7 @@ type RouterDescriptor struct {
 	// The single fields of a "family" line.
 	Family map[Fingerprint]bool
 
-	// The single fields of a "contact" line.
-	Contact string
-
-	// The "hidden-service-dir" line.
-	HiddenServiceDir bool
-
-	OnionKey     string
-	NTorOnionKey string
-	SigningKey   string
-
 	RawExitPolicy string
-
-	RawAccept string
-	RawReject string
-	Accept    []*ExitPattern
-	Reject    []*ExitPattern
 }
 
 type RouterDescriptors struct {
@@ -100,12 +79,8 @@ func (desc *RouterDescriptor) String() string {
 	return fmt.Sprintf(fmtString,
 		desc.Nickname,
 		desc.Address,
-		desc.ORPort,
 		desc.Fingerprint,
-		desc.DirPort,
 		desc.Published,
-		desc.Uptime,
-		desc.Contact,
 		desc.OperatingSystem,
 		desc.TorVersion)
 }
@@ -260,16 +235,10 @@ func ParseRawDescriptor(rawDescriptor string) (Fingerprint, GetDescriptor, error
 		case "router":
 			descriptor.Nickname = words[1]
 			descriptor.Address = net.ParseIP(words[2])
-			descriptor.ORPort = StringToPort(words[3])
-			descriptor.SOCKSPort = StringToPort(words[4])
-			descriptor.DirPort = StringToPort(words[5])
 
 		case "platform":
 			descriptor.OperatingSystem = words[4]
 			descriptor.TorVersion = words[2]
-
-		case "uptime":
-			descriptor.Uptime, _ = strconv.ParseUint(words[1], 10, 64)
 
 		case "published":
 			time, _ := time.Parse(publishedTimeLayout, strings.Join(words[1:], " "))
@@ -291,12 +260,6 @@ func ParseRawDescriptor(rawDescriptor string) (Fingerprint, GetDescriptor, error
 				fpr := Fingerprint(strings.Trim(word, "$"))
 				descriptor.Family[fpr] = true
 			}
-
-		case "contact":
-			descriptor.Contact = strings.Join(words[1:], " ")
-
-		case "hidden-service-dir":
-			descriptor.HiddenServiceDir = true
 
 		case "reject":
 			descriptor.RawExitPolicy += words[0] + " " + words[1] + "\n"
