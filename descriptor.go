@@ -237,7 +237,9 @@ func ParseRawDescriptor(rawDescriptor string) (Fingerprint, GetDescriptor, error
 			descriptor.Address = net.ParseIP(words[2])
 
 		case "platform":
-			descriptor.OperatingSystem = words[4]
+			if len(words) >= 5 {
+				descriptor.OperatingSystem = words[4]
+			}
 			descriptor.TorVersion = words[2]
 
 		case "published":
